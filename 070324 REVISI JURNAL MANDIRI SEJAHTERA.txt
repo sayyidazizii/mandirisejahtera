@@ -1,0 +1,108 @@
+
+
+----------------------------------------------SHU---------------------------------------------- 
+
+----------------------------------------------------------------------------
+SELECT * FROM acct_account WHERE `account_name` = 'Non Operasional Lainnya' = 697
+SELECT *
+FROM acct_account_mutation
+WHERE acct_account_mutation.account_id = '697'
+  -- AND acct_account_mutation.branch_id = '2'
+  AND acct_account_mutation.year_period = '2023';
+
+last_balance bulan 10 dan 11 di nol kan
+-----------------------------------------------------------------------------
+menambah
+//Biaya Kantor
+
+SELECT *
+FROM acct_account_mutation
+WHERE acct_account_mutation.account_id = '714'
+  -- AND acct_account_mutation.branch_id = '2'
+  AND acct_account_mutation.year_period = '2023';
+
+last_balance bulan 12 diganti =  79303967.00
+
+
+----------------------------------------------------------------------------
+//Pajak Penghasilan
+
+SELECT *
+FROM acct_account_mutation
+WHERE acct_account_mutation.account_id = '704'
+  AND acct_account_mutation.branch_id = '2'
+  AND acct_account_mutation.month_period <= '12'
+  AND acct_account_mutation.year_period = '2023';
+
+nominal bulan 12 mutationt_in dan last_balance di isi = 1801360.00
+----------------------------------------------------------------------------
+----------------------------------------------END---------------------------------------------- 
+
+
+
+----------------------------------------------NERACA---------------------------------------------- 
+-----------------------KOLOM-----------------------
+balance_sheet_report_id,report_no,account_id1,account_code1,account_name1,account_id2,account_code2,account_name2,report_formula1,report_operator1,report_type1,report_tab1,report_bold1,report_formula2,report_operator2,report_type2,report_tab2,report_bold2,report_formula3,report_operator3,balance_report_type,balance_report_type1,data_state,created_id,created_on,last_update
+
+----------------------------------------------------------------------------
+//(200.01.9) Hutang Pajak PPH Pasal 29
+  
+SELECT acct_account_opening_balance.opening_balance
+FROM acct_account_opening_balance
+WHERE acct_account_opening_balance.account_id = '711'
+  AND acct_account_opening_balance.branch_id = '2'
+  AND acct_account_opening_balance.month_period = '01'
+  AND acct_account_opening_balance.year_period = '2024';
+
+ubah opening_balance jadi 1180378.00
+
+----------------------------------------------------------------------------
+// (200.01.10) Hutang Pajak PPH Pasal 25
+
+2	716	 68.998 	12	2023	0	2024-03-07 15:05:40
+
+tambah di acct_account_opening_balance
+
+----------------------------------------------------------------------------
+
+
+3#4#5#7#8#9#10#13#14#15#16#17#18#19#22#23#24#25#26#27#31#32
+
+3#4#5#7#8#9#10#14#15#16#17#18#19#20#23#24#25#26#27#28#31#32
+
+----------------------------------------------end---------------------------------------------- 
+
+
+
+
+
+
+QUERY
+
+SELECT SUM(acct_account_mutation.last_balance) AS last_balance
+
+SELECT *
+FROM acct_account_mutation
+WHERE acct_account_mutation.account_id = '711'
+  -- AND acct_account_mutation.branch_id = '2'
+  AND acct_account_mutation.month_period = '12'
+  AND acct_account_mutation.year_period = '2023';
+  
+  
+    SELECT *
+FROM acct_account_mutation
+WHERE acct_account_mutation.account_id = '704'
+  AND acct_account_mutation.branch_id = '2'
+  AND acct_account_mutation.month_period <= '12'
+  AND acct_account_mutation.year_period = '2023';
+  
+  SELECT acct_account_opening_balance.opening_balance
+FROM acct_account_opening_balance
+WHERE acct_account_opening_balance.account_id = '711'
+  AND acct_account_opening_balance.branch_id = '2'
+  AND acct_account_opening_balance.month_period = '12'
+  AND acct_account_opening_balance.year_period = '2023';
+
+
+
+
