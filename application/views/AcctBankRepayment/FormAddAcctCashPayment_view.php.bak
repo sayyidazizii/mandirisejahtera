@@ -1,0 +1,344 @@
+<script>
+	base_url = '<?php echo base_url();?>';
+
+	function toRp(number) {
+		var number = number.toString(), 
+		rupiah = number.split('.')[0], 
+		cents = (number.split('.')[1] || '') +'00';
+		rupiah = rupiah.split('').reverse().join('')
+			.replace(/(\d{3}(?!$))/g, '$1,')
+			.split('').reverse().join('');
+		return rupiah + '.' + cents.slice(0, 2);
+	}
+	
+	function hanyaAngka(evt) {
+		  var charCode = (evt.which) ? evt.which : event.keyCode
+		   if (charCode > 31 && (charCode < 48 || charCode > 57))
+ 
+		    return false;
+		  return true;
+		}
+
+	$(document).ready(function(){
+        $("#credit_account_id").change(function(){
+            var credit_account_id = $("#credit_account_id").val();
+            $.post(base_url + 'AcctCashPayments/getCreditAccountDetail',
+			{credit_account_id: credit_account_id},
+                function(data){			   
+                	// alert(data);
+				   	$("#pembiayaan").val(data.pembiayaan);
+				   	$("#member_name").val(data.member_name);
+					$("#member_address").val(data.member_address);
+					$("#city_name").val(data.city_name);
+					$("#kecamatan_name").val(data.kecamatan_name);
+					$("#identity_name").val(data.identity_name);
+					$("#member_identity_no").val(data.member_identity_no);
+					$("#jangka_waktu").val(data.jangka_waktu);
+					$("#jatuh_tempo").val(data.jatuh_tempo);
+					$("#tanggal_realisasi").val(data.tanggal_realisasi);
+					$("#sisa_pokok_view").val(toRp(data.sisa_pokok));
+					$("#sisa_pokok").val(data.sisa_pokok);
+					$("#sisa_margin_view").val(toRp(data.sisa_margin));
+					$("#sisa_margin").val(data.sisa_margin);
+					$("#saldo_piutang_view").val(toRp(data.saldo_piutang));
+					$("#angsuran_per_bulan").val(toRp(data.payment_amount));
+				},
+					'json'
+				);
+				
+				
+				// $.ajax({
+					// type: 'GET',
+					// url : base_url + 'AcctCashPayments/getDetailPayment',
+					// data: {'credit_account_id' : credit_account_id},
+					// success: function(msg){
+						// $('#tabelpembayaran').html(msg);
+					// }
+				// });				
+            });
+        });
+		
+	function hitungpayment(ganti){
+		var jumlah_angsuran = $('#jumlah_angsuran').val();
+		var pokok_angsuran = $('#angsuran_pokok').val();
+		var margin_angsuran = $('#angsuran_margin').val();
+		var jumlah_margin= 0;
+		var jumlah_pokok= 0;
+		var angsuran_total= 0;
+		if(jumlah_angsuran == ''){
+			alert('Isikan Jumlah Angsuran ! ');
+			document.getElementById('angsuran_pokok_view').value		= '';
+			document.getElementById('angsuran_pokok').value			= '';
+			document.getElementById('angsuran_margin_view').value		= '';
+			document.getElementById('angsuran_margin').value			= '';
+			document.getElementById('angsuran_total_view').value			= '';
+			document.getElementById('angsuran_total').value			= '';
+		}else{
+			if(ganti == 'jumlah'){
+				jumlah_margin = 0;
+				jumlah_pokok = 0;
+			}else if(ganti == 'pokok'){
+				jumlah_margin = parseFloat(jumlah_angsuran) - parseFloat(pokok_angsuran);
+				jumlah_pokok = pokok_angsuran;
+			}else if(ganti == 'margin'){
+				jumlah_margin = margin_angsuran;
+				jumlah_pokok = parseFloat(jumlah_angsuran) - parseFloat(margin_angsuran);
+			}
+			angsuran_total=parseFloat(jumlah_margin) + parseFloat(jumlah_pokok);
+			document.getElementById('angsuran_pokok_view').value		= toRp(jumlah_pokok);
+			document.getElementById('angsuran_pokok').value			= jumlah_pokok;
+			document.getElementById('angsuran_margin_view').value		= toRp(jumlah_margin);
+			document.getElementById('angsuran_margin').value			= jumlah_margin;
+			document.getElementById('angsuran_total_view').value			= toRp(angsuran_total);
+			document.getElementById('angsuran_total').value			= angsuran_total;
+		}
+	}
+
+	$(document).ready(function(){
+        $("#jumlah_angsuran_view").change(function(){
+			var jumlah_angsuran_view				= $('#jumlah_angsuran_view').val();			
+			document.getElementById('jumlah_angsuran_view').value		= toRp(jumlah_angsuran_view);
+			document.getElementById('jumlah_angsuran').value			= jumlah_angsuran_view;
+			hitungpayment('jumlah');
+		});
+	});
+	
+	$(document).ready(function(){
+        $("#angsuran_pokok_view").change(function(){
+			var angsuran_pokok_view				= $('#angsuran_pokok_view').val();			
+			document.getElementById('angsuran_pokok_view').value		= toRp(angsuran_pokok_view);
+			document.getElementById('angsuran_pokok').value			= angsuran_pokok_view;
+			hitungpayment('pokok');
+			
+		});
+	});
+	
+	$(document).ready(function(){
+        $("#angsuran_margin_view").change(function(){
+			var angsuran_margin_view				= $('#angsuran_margin_view').val();			
+			document.getElementById('angsuran_margin_view').value		= toRp(angsuran_margin_view);
+			document.getElementById('angsuran_margin').value			= angsuran_margin_view;
+			hitungpayment('margin');
+		});
+	});
+	
+	
+
+	$(document).ready(function(){
+        $("#Save").click(function(){
+        	var credit_account_id 		= $("#credit_account_id").val();
+			var jumlah_angsuran_view 	= $("#jumlah_angsuran_view").val();
+			var angsuran_total 			= $("#angsuran_total").val();
+			var jumlah_angsuran 		= $("#jumlah_angsuran").val();
+			
+			if(credit_account_id == ''){
+				alert("No. Rekening masih kosong");
+				return false;
+			}else if(jumlah_angsuran_view == ''){
+				alert("Jumlah Angsuran Belum Dimasukkan");
+				return false;
+			}else if(angsuran_total != jumlah_angsuran){
+				alert("Cek Alokasi Angsuran ! ");
+				return false;
+			}else{
+				return true;
+			} 	
+		});
+    });
+</script>
+
+
+		<!-- BEGIN PAGE TITLE & BREADCRUMB-->
+<div class="page-bar">
+	<ul class="page-breadcrumb">
+		<li>
+			<i class="fa fa-home"></i>
+			<a href="<?php echo base_url();?>">
+				Beranda
+			</a>
+			<i class="fa fa-angle-right"></i>
+		</li>
+		<li>
+			<a href="<?php echo base_url();?>AcctCashPayments/addAcctCashPayment">
+				Tambah Pembayaran Pinjaman - Tunai 
+			</a>
+		</li>
+	</ul>
+</div>
+		<!-- END PAGE TITLE & BREADCRUMB-->
+
+<h3 class="page-title">
+	Input Angsuran Pembiayaan - Tunai
+</h3>
+<?php echo form_open('AcctCashPayments/processAddAcctCashPayment',array('id' => 'myform', 'class' => 'horizontal-form')); ?>
+<?php
+	$sesi 	= $this->session->userdata('unique');
+	$data 	= $this->session->userdata('addacctcashpayment-'.$sesi['unique']);
+
+
+?>
+<?php
+// print_r($data);
+	echo $this->session->userdata('message');
+	$this->session->unset_userdata('message');
+?>
+<div class="row">
+	<div class="col-md-12">
+		<div class="portlet"> 
+			 <div class="portlet box blue">
+				<div class="portlet-title">
+					<div class="caption">
+						Form Tambah
+					</div>
+				</div>
+			
+					<div class="portlet-body">
+						<div class="form-body">
+						
+						<div class="col-md-6">
+                                <div class="portlet light bordered">
+                                    <div class="portlet-body">
+                                            <div class="form-group">
+												<label class="control-label">No. Akad</label>
+                                                <?php echo form_dropdown('credit_account_id', $accountcredit, '','id="credit_account_id" class="form-control select2me" ');?>
+											</div>
+                                            <div class="form-group">
+												<label class="control-label">Pembiayaan</label>
+                                                <input type="text" class="form-control" name="pembiayaan" id="pembiayaan" autocomplete="off" readonly/>
+											</div>
+                                            <div class="form-group">
+												<label class="control-label">Nama</label>
+												<input type="text" class="form-control" name="member_name" id="member_name" autocomplete="off" readonly/>
+                                            </div>
+											<div class="form-group">	
+												<label class="control-label">Alamat</label>
+												<input type="text" class="form-control" name="member_address" id="member_address" autocomplete="off" readonly/>
+                                            </div>
+											<div class="form-group">	
+												<label class="control-label">Kota</label>
+												<input type="text" class="form-control" name="member_city" id="member_city" autocomplete="off" readonly/>
+                                            </div>
+											<div class="form-group">	
+												<label class="control-label">Identitas</label>
+												<input type="text" class="form-control" name="member_identity" id="member_identity_no" autocomplete="off" readonly/>
+                                            </div>
+											<div class="form-group">	
+
+												<label class="control-label">No. Identitas</label>
+												<input type="text" class="form-control" name="member_identity_no" id="member_identity_no" autocomplete="off" readonly/>
+                                            </div>
+											<hr>
+											<div class="form-group">	
+												<label class="control-label">Jumlah Angsuran</label>
+												<input type="text" class="form-control" name="jumlah_angsuran_view" id="jumlah_angsuran_view" onkeypress="return hanyaAngka(event)"/>
+												<input type="hidden" class="form-control" name="jumlah_angsuran" id="jumlah_angsuran" />
+                                            </div>
+											<div class="form-group">	
+												<label class="control-label">Angsuran Pokok</label>
+												<input type="text" class="form-control" name="angsuran_pokok_view" id="angsuran_pokok_view" onkeypress="return hanyaAngka(event)"/>
+												<input type="hidden" class="form-control" name="angsuran_pokok" id="angsuran_pokok" />
+                                            </div>
+											<div class="form-group">	
+												<label class="control-label">Angsuran Margin</label>
+												<input type="text" class="form-control" name="angsuran_margin_view" id="angsuran_margin_view" onkeypress="return hanyaAngka(event)"/>
+												<input type="hidden" class="form-control" name="angsuran_margin" id="angsuran_margin" />
+                                            </div>
+											<div class="form-group">
+												<label class="control-label">Total</label>
+												<input type="text" class="form-control" name="angsuran_total_view" id="angsuran_total_view" readonly/>
+												<input type="hidden" class="form-control" name="angsuran_total" id="angsuran_total" readonly/>
+                                            </div>
+											
+                                    </div>
+                                </div>
+                            </div>
+							<div class="col-md-6">
+                                <div class="portlet light bordered">
+                                    <div class="portlet-body">
+                                            <div class="form-group">
+                                                <label class="control-label">Tanggal Angsuran</label>
+                                                <input type="text" name="tanggal_angsuran" id="tanggal_angsuran" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly> </div>
+											<div class="form-group">
+                                                <label class="control-label">Tanggal Realisasi</label>
+                                                <input type="text" class="form-control" name="tanggal_realisasi" id="tanggal_realisasi" autocomplete="off" readonly/> </div>
+											<div class="form-group">
+                                                <label class="control-label">Jt Tempo</label>
+                                                <input type="text" class="form-control" name="jatuh_tempo" id="jatuh_tempo" autocomplete="off" readonly/> </div>
+											<div class="form-group">
+                                                <label class="control-label">Angsuran Ke</label>
+                                                <input type="text" class="form-control" name="angsuran_ke" id="member_name" autocomplete="off" readonly/> </div>
+											<div class="form-group">
+                                                <label class="control-label">Jangka Waktu</label>
+                                                <input type="text" class="form-control" name="jangka_waktu" id="jangka_waktu" autocomplete="off" readonly/> </div>
+                                            <hr>
+											<div class="form-group">
+												<label class="control-label">SISA POKOK</label>
+                                                <input type="text" class="form-control" name="sisa_pokok_view" id="sisa_pokok_view" readonly/>
+                                                <input type="hidden" class="form-control" name="sisa_pokok" id="sisa_pokok" readonly/>
+										
+											</div>
+											<div class="form-group">
+												<label class="control-label">SISA MARGIN</label> 
+                                                <input type="text" class="form-control" name="sisa_margin_view" id="sisa_margin_view" readonly/>
+                                                <input type="hidden" class="form-control" name="sisa_margin" id="sisa_margin" readonly/>
+											</div>
+											<div class="form-group">
+												<label class="control-label">Saldo Piutang</label>
+												<input type="text" class="form-control" name="saldo_piutang_view" id="saldo_piutang_view" readonly/>
+											</div>
+											<div class="form-group">
+												<label class="control-label">Angsuran Per Bulan</label>
+												<input type="text" class="form-control" name="angsuran_per_bulan" id="angsuran_per_bulan" readonly/>
+											</div>
+                                    </div>
+                                </div>
+                            </div>
+							
+							
+							<div class="row">
+								<div class="col-md-12" style='text-align:right'>
+									<button type="reset" name="Reset" value="Reset" class="btn btn-danger" onClick="reset_data();"><i class="fa fa-times"> Batal</i></button>
+									<button type="submit" name="Save" value="Save" id="Save" class="btn green-jungle" title="Simpan Data"><i class="fa fa-check"> Simpan</i></button>
+								</div>	
+							</div>
+						</div>
+					</div>
+				
+			 </div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="portlet"> 
+			 <div class="portlet box blue">
+				<div class="portlet-title">
+					<div class="caption">
+						Daftar Pembayaran
+					</div>
+				</div>
+			
+					<div class="portlet-body">
+						<div class="form-body">
+							<div id="tabelpembayaran">
+								<table class="table table-striped table-hover">
+								<tr>
+									<th>Ke</th>
+									<th>Tgl Angsuran</th>
+									<th>Angsuran Pokok</th>
+									<th>Angsuran Margin</th>
+									<th>Saldo Pokok</th>
+									<th>Saldo Margin</th>
+								</tr>
+								</table>
+							</div>
+							
+						</div>
+					</div>
+				
+			 </div>
+		</div>
+	</div>
+</div>
+<?php echo form_close(); ?>
