@@ -524,7 +524,7 @@
 														if($val['report_type2']	== 3){
 															
 															$last_balance2 	= $this->AcctBalanceSheetReportNew1_model->getLastBalance($val['account_id2'], $data['branch_id'], $last_month, $last_year);
-															print_r($last_balance2);
+															// print_r($last_balance2);
 
 															echo "
 																<td><div style='font-weight:".$report_bold2."'>".$report_tab2."(".$val['account_code2'].") ".$val['account_name2']."</div> </td>
